@@ -1,0 +1,60 @@
+[project]
+name = "agentloop"
+version = "0.1.0"
+description = "A minimal, fully tested LLM agent runtime: typed tools, budgets, parallel tool calls, structured output, JSONL tracing."
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Rohan Reddy Jakkam", email = "86797493+rohanreddy79@users.noreply.github.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=2.0.0",
+    "httpx>=0.28.1",
+    "pydantic>=2.14.1",
+    "rich>=15.0.0",
+    "typer>=0.27.3",
+]
+keywords = ["llm", "agent", "tool-use", "anthropic", "claude", "asyncio"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Software Development :: Libraries",
+]
+
+[project.scripts]
+agentloop = "agentloop.cli:app"
+
+[build-system]
+requires = ["uv_build>=0.9.28,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.17.1",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["RUF012"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["agentloop", "tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-ra"

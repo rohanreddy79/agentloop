@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Environment / secrets
+.env
+
+# Run artifacts at the repo root (the committed example trace lives in examples/traces/)
+/traces/
+/sandbox/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
