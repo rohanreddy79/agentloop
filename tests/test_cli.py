@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -10,6 +11,20 @@ from typer.testing import CliRunner
 from agentloop.cli import app
 
 TASK = "Compute 17 * 23 + 5, read notes.txt, and write the result and the notes to result.txt."
+_ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+
+
+def _plain(text: str) -> str:
+    """Strip ANSI styling and rich box drawing and collapse whitespace.
+
+    GitHub Actions makes typer force a colored 80-column terminal, which wraps and styles
+    error messages; assertions compare against the plain text instead.
+    """
+    text = _ANSI.sub("", text)
+    text = re.sub(r"[\u2502\u256d\u256e\u2570\u256f\u2500]", " ", text)
+    return " ".join(text.split())
+
+
 runner = CliRunner()
 
 
@@ -69,11 +84,11 @@ def test_argument_validation(tmp_path: Path) -> None:
     trace = str(tmp_path / "t.jsonl")
     assert runner.invoke(app, ["run", "x", "--provider", "nope", "--trace", trace]).exit_code != 0
     bad_tool = runner.invoke(app, ["run", "x", "--tools", "python", "--trace", trace])
-    assert bad_tool.exit_code != 0 and "--allow-python" in bad_tool.output
+    assert bad_tool.exit_code != 0 and "--allow-python" in _plain(bad_tool.output)
     no_hosts = runner.invoke(app, ["run", "x", "--tools", "http", "--trace", trace])
-    assert no_hosts.exit_code != 0 and "--allowed-hosts" in no_hosts.output
+    assert no_hosts.exit_code != 0 and "--allowed-hosts" in _plain(no_hosts.output)
     unknown = runner.invoke(app, ["run", "x", "--tools", "laser", "--trace", trace])
-    assert unknown.exit_code != 0 and "unknown tool 'laser'" in unknown.output
+    assert unknown.exit_code != 0 and "unknown tool 'laser'" in _plain(unknown.output)
 
 
 def test_python_tool_can_be_enabled(tmp_path: Path) -> None:
